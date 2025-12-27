@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathology Final Exams - A & B</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; width: 100%; max-width: 800px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
+        .menu { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .btn { padding: 20px; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; }
+        .btn-a { background: #8e44ad; }
+        .btn-b { background: #2980b9; }
+        .q-area { display: none; margin-top: 20px; }
+        .q-text { font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: left; direction: ltr; color: #333; }
+        .option { background: #fff; border: 2px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; text-align: left; direction: ltr; font-size: 17px; transition: 0.2s; }
+        .correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .wrong { background: var(--danger) !important; color: white; border-color: var(--danger); }
+        #feedback { text-align: center; font-size: 20px; font-weight: bold; margin: 15px 0; }
+        #next-btn { width: 100%; background: var(--secondary); color: white; display: none; margin-top: 10px; }
+        .result { display: none; text-align: center; font-size: 24px; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1 id="title">نماذج امتحان الباثولوجي النهائي</h1>
+    
+    <div id="home">
+        <p style="text-align: center;">اختر النموذج الذي تريد التدرب عليه (تصحيح فوري):</p>
+        <div class="menu">
+            <button class="btn btn-a" onclick="startQuiz('A')">📝 أسئلة نموذج (A)</button>
+            <button class="btn btn-b" onclick="startQuiz('B')">📝 أسئلة نموذج (B)</button>
+        </div>
+    </div>
+
+    <div id="quiz" class="q-area">
+        <div id="progress" style="color: #888; margin-bottom: 10px; font-weight: bold;"></div>
+        <div id="question" class="q-text"></div>
+        <div id="options"></div>
+        <div id="feedback"></div>
+        <button id="next-btn" class="btn" onclick="nextQuestion()">السؤال التالي ⬅️</button>
+    </div>
+
+    <div id="result" class="result">
+        <div id="score-text"></div>
+        <button class="btn btn-b" onclick="location.reload()" style="margin-top: 20px; width: 100%;">العودة للقائمة الرئيسية</button>
+    </div>
+</div>
+
+<script>
+    const examA = [
+        { q: "1. Primary atelectasis occurs in which age group?", o: ["Adults", "Newborns", "Adolescents", "Elderly"], c: 1 },
+        { q: "2. How is the surface of lungs described macroscopically in atelectasis?", o: ["Smooth", "Wrinkled", "Spotted", "Bleeding"], c: 1 },
+        { q: "3. What do the alveolar sacs appear as in atelectasis?", o: ["Large bubbles", "Rounded sacs", "Solid masses", "Slits"], c: 3 },
+        { q: "4. What is the most common cause of bronchial inflammation?", o: ["Cigarette smoking and pollution", "Cold weather", "High altitude", "Excessive exercise"], c: 0 },
+        { q: "5. What is the normal Reid index value?", o: ["1.0", "B.0.2", "C.0.8", "0.4"], c: 3 },
+        { q: "6. What term describes the thickening of the bronchial wall due to congestion?", o: ["Oedematous", "Calcified", "Necrotic", "Hypertrophic"], c: 0 },
+        { q: "7. The yellow granular appearance in a resected adenocarcinoma specimen is due to what?", o: ["Mucin secretion", "Tumor necrosis", "Hemorrhage", "Calcification"], c: 1 },
+        { q: "8. The lumens of glands in invasive adenocarcinoma may contain what substance?", o: ["Blood", "Keratin", "Mucin", "Calcium"], c: 2 },
+        { q: "9. Which chromatin pattern is characteristic of small cell carcinoma nuclei?", o: ["Coarse clumped chromatin", "Salt and pepper granular chromatin", "Homogenous dark chromatin"], c: 1 },
+        { q: "10. Tubular and interstitial kidney diseases are usually caused by?", o: ["Toxic or infectious agents", "Genetic mutations", "Autoimmune reactions", "High blood pressure"], c: 0 },
+        { q: "11. Secondary glomerular diseases affect the glomeruli as a result of what?", o: ["Direct trauma", "Systemic or hereditary diseases", "Viral infection only", "Nutrient deficiency"], c: 1 },
+        { q: "12. Acute poststreptococcal GN most commonly affects children of what age range?", o: ["2 to 14 years", "15 to 30 years", "31 to 45 years", "Over 60 years"], c: 0 },
+        { q: "13. RPGN can lead to acute renal failure over what time period?", o: ["Several years", "Several days", "A few weeks or months", "Over a decade"], c: 2 },
+        { q: "14. Microscopically, RPGN is characterized by the presence of what inside Bowman's capsules?", o: ["Cysts", "Crescents", "Stones", "Fibrous scars"], c: 1 },
+        { q: "15. Chronic glomerulonephritis represents:", o: ["A reversible kidney disease", "Final stage of various glomerular diseases", "A congenital disorder", "An acute inflammatory condition"], c: 1 },
+        { q: "16. On cut section in chronic GN, the cortex is:", o: ["Thickened", "Narrow and atrophic", "Hemorrhagic", "Calcified"], c: 1 },
+        { q: "17. The medulla in chronic GN is usually:", o: ["Severely affected", "Completely destroyed", "Unremarkable", "Fibrotic"], c: 2 },
+        { q: "18. Grossly, the nodules are described as:", o: ["Encapsulated and white or yellow", "Soft and green", "Hard and black", "Transparent and clear"], c: 0 },
+        { q: "19. The cut surface of renal cell carcinoma may show all EXCEPT which colour?", o: ["White", "Yellowish", "Brown", "Green"], c: 3 },
+        { q: "20. Which of the following statements about renal cell carcinoma is true?", o: ["It is always benign", "It frequently contains cystic areas", "It originates from the ureter", "It never bleeds"], c: 1 }
+    ];
+
+    const examB = [
+        { q: "1. The lumens of glands in invasive adenocarcinoma may contain what substance?", o: ["Blood", "Keratin", "Mucin", "Calcium"], c: 2 },
+        { q: "2. Which chromatin pattern is characteristic of small cell carcinoma nuclei?", o: ["Coarse clumped chromatin", "Salt and pepper granular chromatin", "Homogenous dark chromatin"], c: 1 },
+        { q: "3. Tubular and interstitial kidney diseases are usually caused by?", o: ["Toxic or infectious agents", "Genetic mutations", "Autoimmune reactions", "High blood pressure"], c: 0 },
+        { q: "4. Secondary glomerular diseases affect the glomeruli as a result of what?", o: ["Direct trauma", "Systemic or hereditary diseases", "Viral infection only", "Nutrient deficiency"], c: 1 },
+        { q: "5. Acute poststreptococcal GN most commonly affects children of what age range?", o: ["2 to 14 years", "15 to 30 years", "31 to 45 years", "Over 60 years"], c: 0 },
+        { q: "6. RPGN can lead to acute renal failure over what time period?", o: ["Several years", "Several days", "A few weeks or months", "Over a decade"], c: 2 },
+        { q: "7. Microscopically, RPGN is characterized by the presence of what inside Bowman's capsules?", o: ["Cysts", "Crescents", "Stones", "Fibrous scars"], c: 1 },
+        { q: "8. Chronic glomerulonephritis represents:", o: ["A reversible kidney disease", "Final stage of various glomerular diseases", "C. congenital disorder"], c: 1 },
+        { q: "9. On cut section in chronic GN, the cortex is:", o: ["Thickened", "Narrow and atrophic", "Hemorrhagic", "Calcified"], c: 1 },
+        { q: "10. The medulla in chronic GN is usually:", o: ["Severely affected", "Completely destroyed", "Unremarkable", "Fibrotic"], c: 2 },
+        { q: "11. Grossly, the nodules are described as:", o: ["Encapsulated and white or yellow", "Soft and green", "Hard and black", "Transparent and clear"], c: 0 },
+        { q: "12. The cut surface of renal cell carcinoma may show all EXCEPT which colour?", o: ["White", "Yellowish", "Brown", "Green"], c: 3 },
+        { q: "13. Which of the following statements about renal cell carcinoma is true?", o: ["It is always benign", "It frequently contains cystic areas", "It originates from the ureter", "It never bleeds"], c: 1 },
+        { q: "14. What is the term for incomplete expansion or collapse of the lung?", o: ["Pneumonia", "Atelectasis", "Emphysema", "Bronchitis"], c: 1 },
+        { q: "15. Secondary atelectasis can occur at which ages?", o: ["Only in infants", "Only in the elderly", "At any age", "Only in middle age"], c: 2 },
+        { q: "16. The consistency of atelectatic lung tissue is described as:", o: ["Fleshy and rubbery", "Hard and stone-like", "Fluffy and airy", "Liquid and watery"], c: 0 },
+        { q: "17. Where do most pulmonary emboli originate?", o: ["Heart valve", "Liver vein", "Deep vein in the leg", "Arm vein"], c: 2 },
+        { q: "18. Which of the following is NOT a cause of blood clots mentioned?", o: ["Viral infection", "B. Trauma", "Surgery", "Medical procedures"], c: 0 },
+        { q: "19. How does the cut surface of a fresh thromboembolus appear grossly?", o: ["White chalky appearance", "Black oily appearance", "Red gelatinous appearance"], c: 2 },
+        { q: "20. A distinctive feature of small cell carcinoma cells is:", o: ["Prominent nucleoli", "Nuclear molding", "Abundant cytoplasm", "Large cell size"], c: 1 }
+    ];
+
+    let currentQuestions = [];
+    let currentIdx = 0;
+    let score = 0;
+    let locked = false;
+
+    function startQuiz(type) {
+        currentQuestions = type === 'A' ? examA : examB;
+        document.getElementById('title').innerText = "نموذج امتحان " + type;
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('quiz').style.display = 'block';
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if (currentIdx >= currentQuestions.length) return showResult();
+        locked = false;
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('next-btn').style.display = 'none';
+        const q = currentQuestions[currentIdx];
+        document.getElementById('progress').innerText = `سؤال ${currentIdx + 1} من 20`;
+        document.getElementById('question').innerText = q.q;
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        q.o.forEach((opt, i) => {
+            const d = document.createElement('div');
+            d.className = 'option';
+            d.innerText = opt;
+            d.onclick = () => checkAnswer(i, d);
+            optionsDiv.appendChild(d);
+        });
+    }
+
+    function checkAnswer(idx, el) {
+        if (locked) return;
+        locked = true;
+        const correct = currentQuestions[currentIdx].c;
+        if (idx === correct) {
+            el.classList.add('correct');
+            document.getElementById('feedback').innerText = "✅ إجابة صحيحة!";
+            score++;
+        } else {
+            el.classList.add('wrong');
+            document.querySelectorAll('.option')[correct].classList.add('correct');
+            document.getElementById('feedback').innerText = "❌ إجابة خاطئة";
+        }
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        renderQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('score-text').innerText = `لقد حصلت على: ${score} من 20`;
+    }
+</script>
+</body>
+</html>
